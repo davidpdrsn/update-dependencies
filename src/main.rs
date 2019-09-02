@@ -1,4 +1,5 @@
 use chrono::prelude::*;
+use colored::*;
 use std::io;
 use std::process::{exit, Command};
 use structopt::StructOpt;
@@ -43,7 +44,7 @@ fn merge_each_brach(branches: &[String]) {
             merge_each_brach(rest);
         }
         Err(_) => {
-            eprintln!("Failed to merge {}", first);
+            eprintln!("{}", format!("\nFailed to merge {}", first).red());
             eprintln!("Fix the issue and continue from the next branch with");
 
             let next_command = format!("update-dependencies {}", rest.join(" "));
@@ -56,10 +57,13 @@ fn merge_each_brach(branches: &[String]) {
 
 fn git(command: &str) -> Result<(), Option<io::Error>> {
     let status = (|| {
+        eprintln!("{}", format!("--- Running: git {}", command).green());
         let args = command.split(" ");
         let mut child = Command::new("git").args(args).spawn()?;
         child.wait()
     })();
+
+    eprintln!();
 
     match status {
         Ok(s) => {
